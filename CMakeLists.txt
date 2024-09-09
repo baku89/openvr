@@ -22,7 +22,7 @@ string(REGEX REPLACE "${VERSION_BUILD_REGEX}" "\\1" VERSION_BUILD ${VERSION_BUIL
 set(OPENVR_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}")
 
 # Setup some options.
-option(BUILD_SHARED "Builds the library as shared library" OFF)
+option(BUILD_SHARED "Builds the library as shared library" ON)
 option(BUILD_FRAMEWORK "Builds the library as an apple Framework" OFF)
 option(BUILD_UNIVERSAL "Builds the shared or framework as a universal (fat, 32- & 64-bit) binary" ON)
 option(BUILD_OSX_I386 "Builds the shared or framework as a 32-bit binary, even on a 64-bit platform" OFF)
@@ -59,9 +59,13 @@ elseif(APPLE)
   if(CMAKE_SYSTEM_NAME MATCHES ".*Darwin.*" OR CMAKE_SYSTEM_NAME MATCHES ".*MacOS.*")
     set(PLATFORM_NAME "osx")
     add_definitions(-DOSX -DPOSIX)
+
+    # Universal build for x86_64 and arm64 (Apple Silicon)
     if(BUILD_UNIVERSAL)
-      set(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
+      set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")  # Support both Intel and Apple Silicon
     endif()
+
+    # Handle older option for i386 builds, but disable for Apple Silicon
     if(BUILD_OSX_I386)
       set(PROCESSOR_ARCH "32")
       set(CMAKE_OSX_ARCHITECTURES "i386")
